@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SeasonStrip from "./components/SeasonStrip";
 import { FOODS, SPOTS } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage } from "@/lib/solarTerms";
 
@@ -67,38 +68,42 @@ export default function HomePage() {
             <span>이번 주 제철</span>
             <span className="count">전체 {others.length}종</span>
           </div>
-          <div className="strip">
-            {others.map((f) => (
-              <Link href={`/product/${f.slug}`} className="mini-card" key={f.slug}>
-                <span className={`stage-tab stage-${f.stage}`}>{f.stage}</span>
-                <p className="mini-name">{f.name}</p>
-              </Link>
-            ))}
-          </div>
+          <SeasonStrip items={others} />
         </>
       )}
 
-      {hero && (
-        <>
-          <div className="section-title">{hero.name}와 함께 즐기기</div>
-          {SPOTS.map((spot) => (
-            <a
-              key={spot.title}
-              className="spot-row"
-              href={`https://search.naver.com/search.naver?query=${encodeURIComponent(spot.query)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="spot-icon">{spot.icon}</div>
-              <div>
-                <p className="spot-title">{spot.title}</p>
-                <p className="spot-sub">{spot.sub}</p>
-              </div>
-              <span className="spot-arrow">↗</span>
-            </a>
-          ))}
-        </>
-      )}
+      {(() => {
+        const seasonSlugSet = new Set(inSeason.map((f) => f.slug));
+        const foodBySlug = Object.fromEntries(inSeason.map((f) => [f.slug, f]));
+        const seasonSpots = SPOTS.filter((s) => seasonSlugSet.has(s.foodSlug));
+
+        if (seasonSpots.length === 0) return null;
+
+        return (
+          <>
+            <div className="section-title">지금 제철 축제·명소</div>
+            {seasonSpots.map((spot, i) => (
+              <a
+                key={i}
+                className="spot-row"
+                href={`https://search.naver.com/search.naver?query=${encodeURIComponent(spot.query)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="spot-icon">{spot.icon}</div>
+                <div>
+                  <span className="spot-food-tag">
+                    {foodBySlug[spot.foodSlug]?.emoji} {foodBySlug[spot.foodSlug]?.name}
+                  </span>
+                  <p className="spot-title">{spot.title}</p>
+                  <p className="spot-sub">{spot.sub}</p>
+                </div>
+                <span className="spot-arrow">↗</span>
+              </a>
+            ))}
+          </>
+        );
+      })()}
 
       <div style={{ height: 24 }} />
     </>
