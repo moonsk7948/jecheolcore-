@@ -1,27 +1,38 @@
 import Link from "next/link";
 import SeasonStrip from "./components/SeasonStrip";
-import { FOODS, SPOTS } from "@/lib/data";
+import { FOODS } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage } from "@/lib/solarTerms";
+import { searchFestivalsByKeyword } from "@/lib/tourApi";
 
-// 매 요청마다 "오늘" 기준으로 새로 계산 (빌드 시점에 날짜가 고정되지 않도록)
+// 날짜/절기는 매 요청마다 새로 계산 (fetch 결과 자체는 아래에서 1시간 캐시)
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export default async function HomePage() {
   const today = new Date();
   const { currentIdx, currentName, nextName, daysToNext } = getTodaySolarTermInfo(today);
 
-  // 모든 제철 음식의 오늘 기준 단계 계산
   const foodsWithStage = Object.entries(FOODS).map(([slug, food]) => {
     const stage = getStage(food.startTerm, food.peakTerm, food.endTerm, currentIdx);
     return { slug, ...food, stage };
   });
 
-  // 오늘의 제철인 것만 추림 (비제철은 제외)
   const inSeason = foodsWithStage.filter((f) => f.stage !== null);
-
-  // 히어로: 절정 단계가 있으면 그중 첫번째, 없으면 제철 목록의 첫번째
   const hero = inSeason.find((f) => f.stage === "절정") || inSeason[0];
   const others = inSeason.filter((f) => f.slug !== hero?.slug);
+
+  // 지금 제철인 음식들 기준으로 TourAPI에서 실시간 축제 검색
+  const spotGroups = await Promise.all(
+    inSeason.map(async (f) => {
+      const festivals = await searchFestivalsByKeyword(`${f.name} 축제`, 2);
+      return festivals.map((fest) => ({
+        ...fest,
+        foodSlug: f.slug,
+        foodName: f.name,
+        foodEmoji: f.emoji,
+      }));
+    })
+  );
+  const seasonSpots = spotGroups.flat();
 
   const dateLabel = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
@@ -72,40 +83,33 @@ export default function HomePage() {
         </>
       )}
 
-      {(() => {
-        const seasonSlugSet = new Set(inSeason.map((f) => f.slug));
-        const foodBySlug = Object.fromEntries(inSeason.map((f) => [f.slug, f]));
-        const seasonSpots = SPOTS.filter((s) => seasonSlugSet.has(s.foodSlug));
-
-        if (seasonSpots.length === 0) return null;
-
-        return (
-          <>
-            <div className="section-title">지금 제철 축제·명소</div>
-            {seasonSpots.map((spot, i) => (
-              <a
-                key={i}
-                className="spot-row"
-                href={`https://search.naver.com/search.naver?query=${encodeURIComponent(spot.query)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="spot-icon">{spot.icon}</div>
-                <div>
-                  <span className="spot-food-tag">
-                    {foodBySlug[spot.foodSlug]?.emoji} {foodBySlug[spot.foodSlug]?.name}
-                  </span>
-                  <p className="spot-title">{spot.title}</p>
-                  <p className="spot-sub">{spot.sub}</p>
-                </div>
-                <span className="spot-arrow">↗</span>
-              </a>
-            ))}
-          </>
-        );
-      })()}
+      {seasonSpots.length > 0 && (
+        <>
+          <div className="section-title">지금 제철 축제·명소</div>
+          {seasonSpots.map((spot, i) => (
+            <a
+              key={`${spot.contentId}-${i}`}
+              className="spot-row"
+              href={`https://search.naver.com/search.naver?query=${encodeURIComponent(spot.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="spot-icon">🎪</div>
+              <div>
+                <span className="spot-food-tag">
+                  {spot.foodEmoji} {spot.foodName}
+                </span>
+                <p className="spot-title">{spot.title}</p>
+                <p className="spot-sub">{spot.addr || "TourAPI 실시간 검색결과"}</p>
+              </div>
+              <span className="spot-arrow">↗</span>
+            </a>
+          ))}
+        </>
+      )}
 
       <div style={{ height: 24 }} />
     </>
   );
 }
+
