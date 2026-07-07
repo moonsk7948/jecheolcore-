@@ -18,12 +18,18 @@ export default async function HomePage() {
 
   const inSeason = foodsWithStage.filter((f) => f.stage !== null);
   const hero = inSeason.find((f) => f.stage === "절정") || inSeason[0];
-  const others = inSeason.filter((f) => f.slug !== hero?.slug);
+
+  // 절정 → 초입 → 막바지 순으로 정렬
+  const stageOrder = { 절정: 0, 초입: 1, 막바지: 2 };
+  const others = inSeason
+    .filter((f) => f.slug !== hero?.slug)
+    .sort((a, b) => stageOrder[a.stage] - stageOrder[b.stage]);
 
   // 지금 제철인 음식들 기준으로 TourAPI에서 실시간 축제 검색
+  // (키워드는 음식 이름만 사용 — "음식명 축제"로 붙이면 제목 매칭률이 크게 떨어짐)
   const spotGroups = await Promise.all(
     inSeason.map(async (f) => {
-      const festivals = await searchFestivalsByKeyword(`${f.name} 축제`, 2);
+      const festivals = await searchFestivalsByKeyword(f.name, 2);
       return festivals.map((fest) => ({
         ...fest,
         foodSlug: f.slug,
@@ -100,7 +106,7 @@ export default async function HomePage() {
                   {spot.foodEmoji} {spot.foodName}
                 </span>
                 <p className="spot-title">{spot.title}</p>
-                <p className="spot-sub">{spot.addr || "TourAPI 실시간 검색결과"}</p>
+                <p className="spot-sub">{spot.period || spot.addr || "TourAPI 실시간 검색결과"}</p>
               </div>
               <span className="spot-arrow">↗</span>
             </a>
