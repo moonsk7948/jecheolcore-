@@ -50,7 +50,8 @@ export default async function ProductListPage({ params }) {
           className={`product-row ${p.slotType === "gonggu" ? "gonggu" : ""}`}
           href={p.url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
+          referrerPolicy="origin"
         >
           <div className={`product-thumb ${p.slotType === "gonggu" ? "clay-bg" : "jade-bg"}`}>
             {p.image ? (
