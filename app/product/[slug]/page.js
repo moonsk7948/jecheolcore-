@@ -15,9 +15,12 @@ export default async function ProductListPage({ params }) {
     getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
     "막바지";
 
-  const autoProducts = await searchNaverShopping(food.name, 6);
-  const sorted = sortProducts(food.gonggu || [], autoProducts);
-  const priceRange = getPriceRange(autoProducts);
+  // 가격대 계산은 넓은 표본(100개) 기준으로, 화면 노출은 상위 10개만
+  const allAutoProducts = await searchNaverShopping(food.name, 100);
+  const displayAutoProducts = allAutoProducts.slice(0, 10);
+
+  const sorted = sortProducts(food.gonggu || [], displayAutoProducts);
+  const priceRange = getPriceRange(allAutoProducts);
 
   return (
     <>
@@ -35,7 +38,7 @@ export default async function ProductListPage({ params }) {
 
       {priceRange && (
         <div className="price-range">
-          <span className="price-range-label">지금 검색된 {priceRange.count}개 상품 가격대</span>
+          <span className="price-range-label">네이버 검색 상위 {priceRange.count}개 기준 가격대</span>
           <span className="price-range-value">
             {priceRange.min.toLocaleString("ko-KR")}원 ~ {priceRange.max.toLocaleString("ko-KR")}원
           </span>
