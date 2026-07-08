@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FOODS, sortProducts, getPriceRange } from "@/lib/data";
+import { FOODS, sortProducts } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
 import { searchNaverShopping } from "@/lib/naverShopping";
 
@@ -15,12 +15,8 @@ export default async function ProductListPage({ params }) {
     getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
     "막바지";
 
-  // 가격대 계산은 넓은 표본(100개) 기준으로, 화면 노출은 상위 10개만
-  const allAutoProducts = await searchNaverShopping(food.name, 100);
-  const displayAutoProducts = allAutoProducts.slice(0, 10);
-
-  const sorted = sortProducts(food.gonggu || [], displayAutoProducts);
-  const priceRange = getPriceRange(allAutoProducts);
+  const autoProducts = await searchNaverShopping(food.name, 10);
+  const sorted = sortProducts(food.gonggu || [], autoProducts);
 
   return (
     <>
@@ -35,15 +31,6 @@ export default async function ProductListPage({ params }) {
       <div className="why-box">
         <p>{food.why} 아래는 네이버 쇼핑 실시간 검색결과예요.</p>
       </div>
-
-      {priceRange && (
-        <div className="price-range">
-          <span className="price-range-label">네이버 검색 상위 {priceRange.count}개 기준 가격대</span>
-          <span className="price-range-value">
-            {priceRange.min.toLocaleString("ko-KR")}원 ~ {priceRange.max.toLocaleString("ko-KR")}원
-          </span>
-        </div>
-      )}
 
       <div className="section-title">
         <span>제철코어가 고른 {food.name}</span>
@@ -66,7 +53,12 @@ export default async function ProductListPage({ params }) {
           rel="noopener noreferrer"
         >
           <div className={`product-thumb ${p.slotType === "gonggu" ? "clay-bg" : "jade-bg"}`}>
-            {food.emoji}
+            {p.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={p.image} alt={p.name} className="product-thumb-img" />
+            ) : (
+              food.emoji
+            )}
           </div>
           <div className="product-body">
             {p.slotType === "gonggu" ? (
@@ -88,3 +80,4 @@ export default async function ProductListPage({ params }) {
     </>
   );
 }
+
