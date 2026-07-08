@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FOODS, sortProducts } from "@/lib/data";
+import { FOODS } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
 import { searchNaverShopping } from "@/lib/naverShopping";
+import { searchCoupang } from "@/lib/coupang";
+import ProductTabs from "../../components/ProductTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +17,10 @@ export default async function ProductListPage({ params }) {
     getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
     "막바지";
 
-  const autoProducts = await searchNaverShopping(food.name, 10);
-  const sorted = sortProducts(food.gonggu || [], autoProducts);
+  const [naverProducts, coupangProducts] = await Promise.all([
+    searchNaverShopping(food.name, 10),
+    searchCoupang(food.name, 10),
+  ]);
 
   return (
     <>
@@ -29,56 +33,21 @@ export default async function ProductListPage({ params }) {
       </div>
 
       <div className="why-box">
-        <p>{food.why} 아래는 네이버 쇼핑 실시간 검색결과예요.</p>
+        <p>{food.why} 아래는 실시간 검색결과예요.</p>
       </div>
 
       <div className="section-title">
         <span>제철코어가 고른 {food.name}</span>
-        <span className="count">{sorted.length}개</span>
       </div>
-      <p className="auto-note">공구 없을 땐 네이버 랭킹 상위 상품이 실시간으로 채워져요</p>
 
-      {sorted.length === 0 && (
-        <p style={{ margin: "0 20px", fontSize: 13, opacity: 0.6 }}>
-          아직 검색된 상품이 없어요. (API 키 설정을 확인해주세요)
-        </p>
-      )}
-
-      {sorted.map((p, i) => (
-        <a
-          key={i}
-          className={`product-row ${p.slotType === "gonggu" ? "gonggu" : ""}`}
-          href={p.url}
-          target="_blank"
-          rel="noopener"
-          referrerPolicy="origin"
-        >
-          <div className={`product-thumb ${p.slotType === "gonggu" ? "clay-bg" : "jade-bg"}`}>
-            {p.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.image} alt={p.name} className="product-thumb-img" />
-            ) : (
-              food.emoji
-            )}
-          </div>
-          <div className="product-body">
-            {p.slotType === "gonggu" ? (
-              <span className="product-tag tag-gonggu">공구</span>
-            ) : (
-              <span className="product-tag tag-normal">
-                {p.rankSource} 랭킹 {p.rank}위 · 실시간
-              </span>
-            )}
-            <p className="product-name">{p.name}</p>
-            <p className="product-source">{p.source}</p>
-            <p className="product-price">{p.price.toLocaleString("ko-KR")}원</p>
-          </div>
-          <span className="product-ext">↗</span>
-        </a>
-      ))}
+      <ProductTabs
+        gonggu={food.gonggu || []}
+        naverProducts={naverProducts}
+        coupangProducts={coupangProducts}
+        emoji={food.emoji}
+      />
 
       <div style={{ height: 24 }} />
     </>
   );
 }
-
