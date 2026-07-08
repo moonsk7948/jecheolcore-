@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FOODS, sortProducts } from "@/lib/data";
-import { getTodaySolarTermInfo, getStage } from "@/lib/solarTerms";
+import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
 import { searchNaverShopping } from "@/lib/naverShopping";
+import { getPriceTrend } from "@/lib/kamis";
+import PriceChart from "../../components/PriceChart";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +13,14 @@ export default async function ProductListPage({ params }) {
   if (!food) return notFound();
 
   const { currentIdx } = getTodaySolarTermInfo(new Date());
-  const stage = getStage(food.startTerm, food.peakTerm, food.endTerm, currentIdx) || "막바지";
+  const stage =
+    getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
+    "막바지";
 
-  const autoProducts = await searchNaverShopping(food.name, 6);
+  const [autoProducts, priceTrend] = await Promise.all([
+    searchNaverShopping(food.name, 6),
+    food.kamis ? getPriceTrend(food.kamis, 30) : Promise.resolve([]),
+  ]);
   const sorted = sortProducts(food.gonggu || [], autoProducts);
 
   return (
@@ -25,6 +32,8 @@ export default async function ProductListPage({ params }) {
         <span className="list-title">{food.name}</span>
         <span className={`stage-tab stage-${stage}`}>{stage}</span>
       </div>
+
+      <PriceChart data={priceTrend} />
 
       <div className="why-box">
         <p>{food.why} 아래는 네이버 쇼핑 실시간 검색결과예요.</p>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SeasonStrip from "./components/SeasonStrip";
 import { FOODS } from "@/lib/data";
-import { getTodaySolarTermInfo, getStage } from "@/lib/solarTerms";
+import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
 import { searchFestivalsByKeyword } from "@/lib/tourApi";
 
 // 날짜/절기는 매 요청마다 새로 계산 (fetch 결과 자체는 아래에서 1시간 캐시)
@@ -12,7 +12,12 @@ export default async function HomePage() {
   const { currentIdx, currentName, nextName, daysToNext } = getTodaySolarTermInfo(today);
 
   const foodsWithStage = Object.entries(FOODS).map(([slug, food]) => {
-    const stage = getStage(food.startTerm, food.peakTerm, food.endTerm, currentIdx);
+    const stage = getStage(
+      termIndex(food.startTerm),
+      termIndex(food.peakTerm),
+      termIndex(food.endTerm),
+      currentIdx
+    );
     return { slug, ...food, stage };
   });
 
