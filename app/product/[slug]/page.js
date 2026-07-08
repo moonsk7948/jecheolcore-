@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FOODS, sortProducts } from "@/lib/data";
+import { FOODS, sortProducts, getPriceRange } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
 import { searchNaverShopping } from "@/lib/naverShopping";
-import { getPriceTrend } from "@/lib/kamis";
-import PriceChart from "../../components/PriceChart";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +15,9 @@ export default async function ProductListPage({ params }) {
     getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
     "막바지";
 
-  const [autoProducts, priceTrend] = await Promise.all([
-    searchNaverShopping(food.name, 6),
-    food.kamis ? getPriceTrend(food.kamis, 30) : Promise.resolve([]),
-  ]);
+  const autoProducts = await searchNaverShopping(food.name, 6);
   const sorted = sortProducts(food.gonggu || [], autoProducts);
+  const priceRange = getPriceRange(autoProducts);
 
   return (
     <>
@@ -33,19 +29,24 @@ export default async function ProductListPage({ params }) {
         <span className={`stage-tab stage-${stage}`}>{stage}</span>
       </div>
 
-      <PriceChart data={priceTrend} />
-
       <div className="why-box">
         <p>{food.why} 아래는 네이버 쇼핑 실시간 검색결과예요.</p>
       </div>
+
+      {priceRange && (
+        <div className="price-range">
+          <span className="price-range-label">지금 검색된 {priceRange.count}개 상품 가격대</span>
+          <span className="price-range-value">
+            {priceRange.min.toLocaleString("ko-KR")}원 ~ {priceRange.max.toLocaleString("ko-KR")}원
+          </span>
+        </div>
+      )}
 
       <div className="section-title">
         <span>제철코어가 고른 {food.name}</span>
         <span className="count">{sorted.length}개</span>
       </div>
-      <p className="auto-note">
-        공구 없을 땐 네이버 랭킹 상위 상품이 실시간으로 채워져요
-      </p>
+      <p className="auto-note">공구 없을 땐 네이버 랭킹 상위 상품이 실시간으로 채워져요</p>
 
       {sorted.length === 0 && (
         <p style={{ margin: "0 20px", fontSize: 13, opacity: 0.6 }}>
@@ -84,4 +85,3 @@ export default async function ProductListPage({ params }) {
     </>
   );
 }
-
