@@ -55,7 +55,7 @@ export default async function HomePage() {
   return (
     <>
       <div className="topbar">
-        <span className="brand">제철코어</span>
+        <span className="brand">제철나우</span>
         <span className="date">{dateLabel}</span>
       </div>
 

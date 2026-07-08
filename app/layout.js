@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "제철코어",
-  description: "오늘, 무엇을 먹어야 할까? 제철코어가 알려드려요.",
+  title: "제철나우",
+  description: "오늘, 무엇을 먹어야 할까? 제철나우가 알려드려요.",
 };
 
 export default function RootLayout({ children }) {

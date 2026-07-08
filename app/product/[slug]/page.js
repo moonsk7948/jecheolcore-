@@ -37,7 +37,7 @@ export default async function ProductListPage({ params }) {
       </div>
 
       <div className="section-title">
-        <span>제철코어가 고른 {food.name}</span>
+        <span>제철나우가 고른 {food.name}</span>
       </div>
 
       <ProductTabs
