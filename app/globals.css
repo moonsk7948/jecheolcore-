@@ -68,7 +68,7 @@ a {
   color: var(--jade);
 }
 .stage-절정 {
-  background: var(--harvest);
+  background: var(--clay);
   color: #fff;
 }
 .stage-막바지 {
@@ -80,7 +80,7 @@ a {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 20px 18px;
+  padding: 10px 20px 6px;
 }
 .dial-title {
   font-family: "Noto Serif KR", serif;
@@ -271,7 +271,7 @@ a {
   flex: 1;
 }
 .why-box {
-  margin: 10px 20px 8px;
+  margin: 10px 20px 6px;
   background: var(--card);
   border-left: 3px solid var(--harvest);
   border-radius: 0 12px 12px 0;
