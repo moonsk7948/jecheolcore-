@@ -261,6 +261,20 @@ a {
   background: var(--jade-soft);
   color: var(--jade);
 }
+.more-btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 4px 20px 8px;
+  padding: 10px;
+  background: none;
+  border: 1px dashed var(--mist);
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.6;
+  cursor: pointer;
+}
 .spot-sub {
   font-size: 11px;
   opacity: 0.55;
