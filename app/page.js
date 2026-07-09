@@ -3,7 +3,7 @@ import SeasonStrip from "./components/SeasonStrip";
 import FestivalList from "./components/FestivalList";
 import { FOODS } from "@/lib/data";
 import { getTodaySolarTermInfo, getStage, termIndex } from "@/lib/solarTerms";
-import { searchFoodFestivals } from "@/lib/tourApi";
+import { searchAllFestivals } from "@/lib/tourApi";
 
 // 날짜/절기는 매 요청마다 새로 계산 (fetch 결과 자체는 아래에서 1시간 캐시)
 export const dynamic = "force-dynamic";
@@ -31,8 +31,8 @@ export default async function HomePage() {
     .filter((f) => f.slug !== hero?.slug)
     .sort((a, b) => stageOrder[a.stage] - stageOrder[b.stage]);
 
-  // 제철나우에 등록된 음식 여부와 무관하게, 전국 축제 중 먹거리 관련 축제 전체를 가져옴
-  const nearbyFestivals = await searchFoodFestivals(14, 100);
+  // 전국 축제 전체 (연중 상시 축제는 제외), 진행중 우선 + 가까운 날짜순은 함수 내부에서 처리됨
+  const nearbyFestivals = await searchAllFestivals(14, 100);
 
   const dateLabel = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
