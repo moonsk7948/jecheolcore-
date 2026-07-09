@@ -245,15 +245,21 @@ a {
   font-weight: 500;
   margin: 0;
 }
-.spot-food-tag {
+.spot-status-tag {
   display: inline-block;
   font-size: 10px;
   font-weight: 500;
   padding: 1px 7px;
   border-radius: 100px;
+  margin-bottom: 4px;
+}
+.spot-status-tag.ongoing {
+  background: var(--clay-soft);
+  color: var(--clay);
+}
+.spot-status-tag.upcoming {
   background: var(--jade-soft);
   color: var(--jade);
-  margin-bottom: 4px;
 }
 .spot-sub {
   font-size: 11px;
