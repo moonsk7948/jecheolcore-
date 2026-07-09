@@ -30,6 +30,7 @@ export default async function ProductListPage({ params }) {
         </Link>
         <span className="list-title">{food.name}</span>
         <span className={`stage-tab stage-${stage}`}>{stage}</span>
+        {food.trending && <span className="trend-tag">🔥 유행</span>}
       </div>
 
       <div className="why-box">

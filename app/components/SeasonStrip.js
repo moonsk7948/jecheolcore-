@@ -26,7 +26,10 @@ export default function SeasonStrip({ items }) {
       <div className="strip" ref={scrollRef}>
         {items.map((f) => (
           <Link href={`/product/${f.slug}`} className="mini-card" key={f.slug}>
-            <span className={`stage-tab stage-${f.stage}`}>{f.stage}</span>
+            <div className="mini-card-tags">
+              <span className={`stage-tab stage-${f.stage}`}>{f.stage}</span>
+              {f.trending && <span className="trend-tag">🔥</span>}
+            </div>
             <p className="mini-name">{f.name}</p>
           </Link>
         ))}

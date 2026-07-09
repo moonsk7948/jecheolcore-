@@ -75,6 +75,7 @@ export default async function HomePage() {
             <div className="hero-top">
               <div>
                 <span className={`stage-tab stage-${hero.stage}`}>{hero.stage}</span>
+                {hero.trending && <span className="trend-tag">🔥 유행</span>}
                 <p className="hero-name">{hero.name}</p>
                 <p className="hero-desc">{hero.why}</p>
               </div>
