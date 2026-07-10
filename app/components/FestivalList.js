@@ -1,38 +1,15 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useLayoutEffect } from "react";
 import { REGION_GROUPS, getRegionKey } from "@/lib/regions";
-
-// easeInOutCubic 이징을 쓴 커스텀 스크롤 애니메이션 (브라우저 기본 smooth보다 부드럽게 조절 가능)
-function animateScrollTo(targetY, duration = 550) {
-  const startY = window.scrollY;
-  const diff = targetY - startY;
-  if (Math.abs(diff) < 1) return Promise.resolve();
-
-  let startTime = null;
-
-  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-  return new Promise((resolve) => {
-    function step(timestamp) {
-      if (startTime === null) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      window.scrollTo(0, startY + diff * easeInOutCubic(progress));
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        resolve();
-      }
-    }
-    requestAnimationFrame(step);
-  });
-}
 
 export default function FestivalList({ festivals }) {
   const [region, setRegion] = useState("all");
   const [expanded, setExpanded] = useState(false);
+  const [minHeight, setMinHeight] = useState(0);
+
   const wrapperRef = useRef(null);
+  const maxHeightRef = useRef(0);
 
   // 실제 데이터에 존재하는 지역만 탭으로 노출 (0건인 지역 탭은 숨김)
   const availableRegionKeys = useMemo(() => {
@@ -50,28 +27,25 @@ export default function FestivalList({ festivals }) {
   const visible = expanded ? filtered : filtered.slice(0, 5);
   const remaining = filtered.length - 5;
 
-  function selectRegion(key) {
-    const wrapper = wrapperRef.current;
-
-    // 리스트가 짧아지는 순간 브라우저가 스크롤을 강제로 당기는 걸 막기 위해,
-    // state 변경(리렌더) 전에 지금 높이로 먼저 얼려둔다 (React 렌더와 무관하게 DOM에 직접 반영)
-    if (wrapper) {
-      wrapper.style.minHeight = `${wrapper.offsetHeight}px`;
+  // 지금까지 렌더링된 것 중 가장 컸던 높이를 계속 기록해두고, 그 아래로는 절대 줄지 않게 고정한다.
+  // 로직이 단순해서(측정 -> 기록 -> 큰 값이면 반영) 실패 케이스가 없다.
+  useLayoutEffect(() => {
+    if (wrapperRef.current) {
+      const h = wrapperRef.current.scrollHeight;
+      if (h > maxHeightRef.current) {
+        maxHeightRef.current = h;
+        setMinHeight(h);
+      }
     }
+  });
 
+  function selectRegion(key) {
     setRegion(key);
     setExpanded(false); // 지역 바꾸면 더보기 상태 초기화
-
-    requestAnimationFrame(async () => {
-      if (!wrapper) return;
-      const targetY = wrapper.getBoundingClientRect().top + window.scrollY;
-      await animateScrollTo(targetY);
-      wrapper.style.minHeight = ""; // 이동 끝났으니 고정 해제 (자연스러운 높이로 복귀)
-    });
   }
 
   return (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} style={{ minHeight: minHeight || undefined }}>
       <div className="region-tabs">
         {tabs.map((t) => (
           <button
