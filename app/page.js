@@ -32,7 +32,7 @@ export default async function HomePage() {
     .sort((a, b) => stageOrder[a.stage] - stageOrder[b.stage]);
 
   // 전국 축제 전체 (연중 상시 축제는 제외), 진행중 우선 + 가까운 날짜순은 함수 내부에서 처리됨
-  const nearbyFestivals = await searchAllFestivals(14, 100);
+  const nearbyFestivals = await searchAllFestivals(14, 400);
 
   const dateLabel = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
