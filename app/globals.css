@@ -275,6 +275,36 @@ a {
   opacity: 0.6;
   cursor: pointer;
 }
+
+.region-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.region-tabs::-webkit-scrollbar {
+  display: none;
+}
+.region-tab {
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid var(--mist);
+  border-radius: 100px;
+  padding: 6px 13px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.6;
+  cursor: pointer;
+}
+.region-tab.active {
+  background: var(--jade);
+  border-color: var(--jade);
+  color: #fff;
+  opacity: 1;
+}
 .spot-sub {
   font-size: 11px;
   opacity: 0.55;
