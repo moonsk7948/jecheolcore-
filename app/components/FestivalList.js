@@ -28,22 +28,65 @@ export default function FestivalList({ festivals }) {
     e.currentTarget.blur(); // 클릭된 버튼에 포커스가 남아 브라우저가 자체적으로 스크롤시키는 것 방지
 
     const wrapper = wrapperRef.current;
-    if (wrapper) {
-      // 1) 지금 높이를 min-height(바닥값)로 고정 — 문서 높이가 갑자기 줄지 않게 막는다
-      const currentHeight = wrapper.getBoundingClientRect().height;
-      wrapper.style.transition = "none";
-      wrapper.style.minHeight = `${currentHeight}px`;
+    if (!wrapper) {
+      updateFn();
+      return;
     }
 
-    updateFn(); // state 변경 -> 새 콘텐츠로 교체 (하지만 min-height가 막고 있어 화면은 안 줄어듦)
+    const beforeHeight = wrapper.getBoundingClientRect().height;
+    const startScrollY = window.scrollY;
+
+    // 1) 지금 높이로 고정 (state 변경 순간 문서 높이가 갑자기 줄지 않게)
+    wrapper.style.transition = "none";
+    wrapper.style.overflow = "hidden";
+    wrapper.style.height = `${beforeHeight}px`;
+
+    updateFn(); // 새 콘텐츠로 교체 (화면상으론 아직 beforeHeight로 고정된 상태)
 
     requestAnimationFrame(() => {
-      const w = wrapperRef.current;
-      if (!w) return;
-      // 2) min-height를 0으로 천천히 내린다. 실제 콘텐츠보다 더 내려가진 않으므로
-      //    "얼마로 줄어들지" 미리 잴 필요 없이 자연스럽게 새 콘텐츠 높이에서 멈춘다
-      w.style.transition = "min-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)";
-      w.style.minHeight = "0px";
+      requestAnimationFrame(() => {
+        const w = wrapperRef.current;
+        if (!w) return;
+
+        // 2) 새 콘텐츠의 실제(자연스러운) 높이를 잠깐만 재고 다시 고정 상태로 되돌림
+        w.style.height = "auto";
+        const afterHeight = w.getBoundingClientRect().height;
+        w.style.height = `${beforeHeight}px`;
+
+        const heightDiff = beforeHeight - afterHeight; // 양수면 줄어드는 것
+        // 문서가 줄어드는 만큼 스크롤도 같이 당겨야 하는 상황인지 계산
+        // (지금 스크롤이 이미 그 이내라면 안 움직여도 됨)
+        const maxScrollAfter = Math.max(
+          0,
+          document.documentElement.scrollHeight - heightDiff - window.innerHeight
+        );
+        const targetScrollY = Math.min(startScrollY, maxScrollAfter);
+        const scrollDiff = targetScrollY - startScrollY;
+
+        const duration = 420;
+        const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+        let startTime = null;
+
+        function step(ts) {
+          if (startTime === null) startTime = ts;
+          const progress = Math.min((ts - startTime) / duration, 1);
+          const eased = easeInOutCubic(progress);
+
+          w.style.height = `${beforeHeight - heightDiff * eased}px`;
+          if (scrollDiff !== 0) {
+            window.scrollTo(0, startScrollY + scrollDiff * eased);
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            w.style.transition = "";
+            w.style.height = "";
+            w.style.overflow = "";
+          }
+        }
+        requestAnimationFrame(step);
+      });
     });
   }
 
