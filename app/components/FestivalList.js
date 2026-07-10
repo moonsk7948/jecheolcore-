@@ -9,7 +9,7 @@ export default function FestivalList({ festivals }) {
 
   // 실제 데이터에 존재하는 지역만 탭으로 노출 (0건인 지역 탭은 숨김)
   const availableRegionKeys = useMemo(() => {
-    const keys = new Set(festivals.map((f) => getRegionKey(f.areacode)));
+    const keys = new Set(festivals.map((f) => getRegionKey(f.addr)));
     return keys;
   }, [festivals]);
 
@@ -17,7 +17,7 @@ export default function FestivalList({ festivals }) {
 
   const filtered = useMemo(() => {
     if (region === "all") return festivals;
-    return festivals.filter((f) => getRegionKey(f.areacode) === region);
+    return festivals.filter((f) => getRegionKey(f.addr) === region);
   }, [festivals, region]);
 
   const visible = expanded ? filtered : filtered.slice(0, 5);
