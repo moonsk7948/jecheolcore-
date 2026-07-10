@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useLayoutEffect } from "react";
 import { REGION_GROUPS, getRegionKey } from "@/lib/regions";
 
 export default function FestivalList({ festivals }) {
   const [region, setRegion] = useState("all");
   const [expanded, setExpanded] = useState(false);
+  const scrollRestoreRef = useRef(null);
 
   // 실제 데이터에 존재하는 지역만 탭으로 노출 (0건인 지역 탭은 숨김)
   const availableRegionKeys = useMemo(() => {
@@ -24,9 +25,17 @@ export default function FestivalList({ festivals }) {
   const remaining = filtered.length - 5;
 
   function selectRegion(key) {
+    scrollRestoreRef.current = window.scrollY;
     setRegion(key);
     setExpanded(false); // 지역 바꾸면 더보기 상태 초기화
   }
+
+  useLayoutEffect(() => {
+    if (scrollRestoreRef.current !== null) {
+      window.scrollTo(0, scrollRestoreRef.current);
+      scrollRestoreRef.current = null;
+    }
+  }, [region]);
 
   return (
     <>
