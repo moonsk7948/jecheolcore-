@@ -17,7 +17,15 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <div className="app-shell">{children}</div>
+        <div className="app-shell">
+          {children}
+          <footer className="site-footer">
+            <p>COPYRIGHT ⓒ제철나우 All rights reserved</p>
+            <p>
+              공동구매 문의 <a href="mailto:abc@abc.com">abc@abc.com</a>
+            </p>
+          </footer>
+        </div>
       </body>
     </html>
   );
