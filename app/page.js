@@ -25,11 +25,14 @@ export default async function HomePage() {
   const inSeason = foodsWithStage.filter((f) => f.stage !== null);
   const hero = inSeason.find((f) => f.stage === "절정") || inSeason[0];
 
-  // 절정 → 초입 → 막바지 순으로 정렬
+  // 유행인 것 먼저, 그다음 절정 → 초입 → 막바지 순으로 정렬
   const stageOrder = { 절정: 0, 초입: 1, 막바지: 2 };
   const others = inSeason
     .filter((f) => f.slug !== hero?.slug)
-    .sort((a, b) => stageOrder[a.stage] - stageOrder[b.stage]);
+    .sort((a, b) => {
+      if (a.trending !== b.trending) return a.trending ? -1 : 1;
+      return stageOrder[a.stage] - stageOrder[b.stage];
+    });
 
   // 전국 축제 전체 (연중 상시 축제는 제외), 진행중 우선 + 가까운 날짜순은 함수 내부에서 처리됨
   const nearbyFestivals = await searchAllFestivals(14, 400);
