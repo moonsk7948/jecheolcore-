@@ -13,9 +13,10 @@ export default async function ProductListPage({ params }) {
   if (!food) return notFound();
 
   const { currentIdx } = getTodaySolarTermInfo(new Date());
-  const stage =
-    getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx) ||
-    "막바지";
+  const hasSeasonData = food.startTerm && food.peakTerm && food.endTerm;
+  const stage = hasSeasonData
+    ? getStage(termIndex(food.startTerm), termIndex(food.peakTerm), termIndex(food.endTerm), currentIdx)
+    : null;
 
   const [naverProducts, coupangProducts] = await Promise.all([
     searchNaverShopping(food.name, 10),
@@ -29,7 +30,7 @@ export default async function ProductListPage({ params }) {
           ←
         </Link>
         <span className="list-title">{food.name}</span>
-        <span className={`stage-tab stage-${stage}`}>{stage}</span>
+        {stage && <span className={`stage-tab stage-${stage}`}>{stage}</span>}
         {food.trending && <span className="trend-tag">🔥 유행</span>}
       </div>
 
