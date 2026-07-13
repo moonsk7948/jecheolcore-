@@ -28,7 +28,7 @@ export default function SeasonStrip({ items }) {
           <Link href={`/product/${f.slug}`} className="mini-card" key={f.slug}>
             <div className="mini-card-tags">
               {f.stage && <span className={`stage-tab stage-${f.stage}`}>{f.stage}</span>}
-              {f.trending && <span className="trend-tag">🔥</span>}
+              {f.trending && <span className="trend-tag">🔥 유행</span>}
             </div>
             <p className="mini-name">{f.name}</p>
           </Link>
