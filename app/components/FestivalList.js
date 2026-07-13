@@ -8,6 +8,7 @@ export default function FestivalList({ festivals }) {
   const [expanded, setExpanded] = useState(false);
   const wrapperRef = useRef(null); // 높이 애니메이션 전용 (실제로 style을 건드리는 쪽)
   const innerRef = useRef(null); // 실제 콘텐츠. 항상 자연스러운 높이 그대로 두고 측정만 함
+  const tabsScrollRef = useRef(null); // 지역 탭 가로 스크롤 영역
 
   // 실제 데이터에 존재하는 지역만 탭으로 노출 (0건인 지역 탭은 숨김)
   const availableRegionKeys = useMemo(() => {
@@ -98,20 +99,32 @@ export default function FestivalList({ festivals }) {
     applyChange(e, () => setExpanded(true));
   }
 
+  function scrollTabs(dir) {
+    tabsScrollRef.current?.scrollBy({ left: dir * 160, behavior: "smooth" });
+  }
+
   return (
     <div ref={wrapperRef}>
       <div ref={innerRef}>
-        <div className="region-tabs">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              className={`region-tab ${region === t.key ? "active" : ""}`}
-              onClick={(e) => selectRegion(t.key, e)}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="region-tabs-wrap">
+          <button type="button" className="strip-arrow" onClick={() => scrollTabs(-1)} aria-label="이전 지역 보기">
+            ‹
+          </button>
+          <div className="region-tabs" ref={tabsScrollRef}>
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                className={`region-tab ${region === t.key ? "active" : ""}`}
+                onClick={(e) => selectRegion(t.key, e)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="strip-arrow" onClick={() => scrollTabs(1)} aria-label="다음 지역 보기">
+            ›
+          </button>
         </div>
 
         {filtered.length === 0 ? (

@@ -276,10 +276,16 @@ a {
   cursor: pointer;
 }
 
-.region-tabs {
+.region-tabs-wrap {
   display: flex;
+  align-items: center;
   gap: 6px;
   padding: 0 20px 12px;
+}
+.region-tabs {
+  flex: 1;
+  display: flex;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
