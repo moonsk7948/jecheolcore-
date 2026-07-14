@@ -340,6 +340,34 @@ a {
   font-size: 15px;
 }
 
+.banner-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 20px 14px;
+  padding: 11px 13px;
+  min-height: 60px;
+  border: 1.5px dashed var(--mist);
+  border-radius: 14px;
+  background: var(--paper);
+}
+.banner-slot-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  opacity: 0.35;
+  border: 1px solid var(--mist);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.banner-slot-text {
+  font-size: 12.5px;
+  color: var(--ink);
+  opacity: 0.4;
+}
+
 .list-topbar {
   display: flex;
   align-items: center;

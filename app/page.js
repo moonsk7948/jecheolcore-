@@ -93,6 +93,11 @@ export default async function HomePage() {
         </>
       )}
 
+      <div className="banner-slot">
+        <span className="banner-slot-tag">AD</span>
+        <span className="banner-slot-text">광고 배너 자리 (준비중)</span>
+      </div>
+
       {nearbyFestivals.length > 0 && (
         <>
           <div className="section-title">지금 · 곧 열리는 축제</div>
