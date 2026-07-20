@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
           <footer className="site-footer">
             <p>COPYRIGHT ⓒ제철나우 All rights reserved</p>
             <p>
-              공동구매 문의 <a href="mailto:abc@abc.com">abc@abc.com</a>
+              협업, 공동구매, 광고 문의 <a href="mailto:jcheolnow@gmail.com">jcheolnow@gmail.com</a>
             </p>
           </footer>
         </div>
